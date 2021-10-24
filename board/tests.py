@@ -138,7 +138,7 @@ class AlllTextViewTest(TestCase):
 
     def test_all_text_view_success(self):
         client   = Client()
-        response = client.get('/board/text')
+        response = client.get('/board/text?page=1')
 
         self.assertEqual(response.json(), 
             {"title_lists": [
@@ -153,13 +153,20 @@ class AlllTextViewTest(TestCase):
             })
 
         self.assertEqual(response.status_code, 200)
+    
+    def test_all_text_view_wrong_request_error(self):
+        client   = Client()
+        response = client.get('/board/text?page=-1')
+
+        self.assertEqual(response.json(), {'message' : 'WRONG REQUEST'})
+        self.assertEqual(response.status_code, 404)
 
 class AllTextViewEmptyTest(TestCase):
     def test_all_text_view_not_exist_error(self):
         client   = Client()
         response = client.get('/board/text')
 
-        self.assertEqual(response.json(), {'MESSAGE' : 'TEXT DOES NOT EXISTS'})
+        self.assertEqual(response.json(), {'message' : 'TEXT DOES NOT EXISTS'})
         self.assertEqual(response.status_code, 404)
 
 class DetailTextViewTest(TestCase):

@@ -34,15 +34,24 @@ class CreateTextView(View):
 class AllTextView(View):
     def get(self, request):
         if not Board.objects.all():
-            return JsonResponse({'MESSAGE' : 'TEXT DOES NOT EXISTS'}, status=404)
+            return JsonResponse({'message' : 'TEXT DOES NOT EXISTS'}, status=404)
             
-        texts = Board.objects.select_related("user").all()
+        all_texts = Board.objects.select_related("user").all()
+        offset = request.GET.get('page', 1)
+        count = 15
 
-        return JsonResponse({'title_lists' : [
+        if int(offset) <= 0:
+            return JsonResponse({"message" : "WRONG REQUEST"}, status=404)
+        
+        start = (int(offset)-1) * count
+
+        texts = [
             {
                 'title' : text.title, 
                 'user'  : text.user.name, 
-            } for text in texts]}, status = 200)
+            } for text in all_texts[start:start+count]]
+
+        return JsonResponse({'title_lists' : texts}, status = 200)
 
 class DetailTextView(View):
     def get(self, request, text_id):
