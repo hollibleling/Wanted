@@ -33,38 +33,32 @@ class CreateTextView(View):
 
 class AllTextView(View):
     def get(self, request):
-        try:
-            if not Board.objects.all():
-                return JsonResponse({'MESSAGE' : 'TEXT DOES NOT EXISTS'})
+        if not Board.objects.all():
+            return JsonResponse({'MESSAGE' : 'TEXT DOES NOT EXISTS'})
             
-            texts = Board.objects.select_related("user").all()
+        texts = Board.objects.select_related("user").all()
 
-            return JsonResponse({'title_lists' : [
-                {
-                    'title' : text.title, 
-                    'user'  : text.user.name, 
-                } for text in texts]}, status = 200)
-        except KeyError:
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
+        return JsonResponse({'title_lists' : [
+            {
+                'title' : text.title, 
+                'user'  : text.user.name, 
+            } for text in texts]}, status = 200)
 
 class DetailTextView(View):
     def get(self, request, text_id):
-        try:
-            if not Board.objects.filter(id = text_id).exists():
-                return JsonResponse({'MESSAGE' : 'NOT FOUND'}, status = 404)
+        if not Board.objects.filter(id = text_id).exists():
+            return JsonResponse({'MESSAGE' : 'NOT FOUND'}, status = 404)
 
-            text = Board.objects.select_related("user").get(id = text_id)
+        text = Board.objects.select_related("user").get(id = text_id)
 
-            return JsonResponse({
-                'title'      : text.title,
-                'text'       : text.text,
-                'created_at' : text.created_at,
-                'updated_at' : text.updated_at,
-                'user'       : text.user.name,
-            })
-        except KeyError:
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
-    
+        return JsonResponse({
+            'title'      : text.title,
+            'text'       : text.text,
+            'created_at' : text.created_at,
+            'updated_at' : text.updated_at,
+            'user'       : text.user.name,
+        })
+
     @authentication
     def patch(self, request, text_id):
         data = json.loads(request.body)
@@ -74,45 +68,31 @@ class DetailTextView(View):
             text  = data["text"]
 
             detail_text = Board.objects.select_related("user").get(id = text_id)
-
-            if detail_text.user_id != request.user:
-                return JsonResponse({"message" : "INVALID USER"}, status = 400)
-
             detail_text.title = title
             detail_text.text = text
             detail_text.save()
 
             return JsonResponse({"message" : "UPDATE SUCCESS"}, status = 200)
         except KeyError:
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
+            return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
     
     @authentication
     def delete(self, request, text_id):
-        try:
-            detail_text = Board.objects.select_related("user").get(id = text_id)
+        detail_text = Board.objects.select_related("user").get(id = text_id)
 
-            if detail_text.user_id != request.user:
-                return JsonResponse({"message" : "INVALID USER"}, status = 400)
+        detail_text.delete()
 
-            detail_text.delete()
-
-            return JsonResponse({"message" : "DELETE COMPLETE"}, status = 200)
-        except KeyError:
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
+        return JsonResponse({"message" : "DELETE COMPLETE"}, status = 200)
 
 class TextSummaryView(View):
     def get(self, request, user_id):
-        try:
-            if not Board.objects.filter(user_id = user_id).exists():
-                return JsonResponse({'MESSAGE' : 'NOT FOUND'}, status = 404)
+        if not Board.objects.filter(user_id = user_id).exists():
+            return JsonResponse({'MESSAGE' : 'NOT FOUND'}, status = 404)
             
-            texts = Board.objects.filter(user_id = user_id)
+        texts = Board.objects.filter(user_id = user_id)
 
-            return JsonResponse({'title_lists' : [
-                {
-                    'title' : text.title, 
-                    'user'  : text.user.name, 
-                } for text in texts]}, status = 200)
-        except KeyError:
-            return JsonResponse({'MESSAGE' : 'KEY_ERROR'}, status = 400)
-
+        return JsonResponse({'title_lists' : [
+            {
+                'title' : text.title, 
+                'user'  : text.user.name, 
+            } for text in texts]}, status = 200)
