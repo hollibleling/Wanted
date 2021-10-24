@@ -143,11 +143,11 @@ class AlllTextViewTest(TestCase):
         self.assertEqual(response.json(), 
             {"title_lists": [
                     {
-                        "title": "안녕하세요~",
+                        "title": "다시 또 뵙네요.",
                         "user": "김정수"
                         },
                     {
-                        "title": "다시 또 뵙네요.",
+                        "title": "안녕하세요~",
                         "user": "김정수"
                         }]
             })
@@ -231,7 +231,7 @@ class DetailTextViewTest(TestCase):
         response = client.patch("/board/1", json.dumps(text), **header, content_type="application/json")
 
         self.assertEqual(response.json(), {"message" : "UPDATE SUCCESS"})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
     
     def test_detail_text_view_patch_invalid_user_error(self):
         client   = Client()
@@ -319,16 +319,16 @@ class TextSummaryViewTest(TestCase):
 
     def test_text_summary_get_success(self):
         client   = Client()
-        response = client.get('/board/user/1')
+        response = client.get('/board/user/1?page=1')
 
         self.assertEqual(response.json(), 
             {"title_lists": [
                     {
-                        "title": "안녕하세요~",
+                        "title": "다시 또 뵙네요.",
                         "user": "김정수"
                         },
                     {
-                        "title": "다시 또 뵙네요.",
+                        "title": "안녕하세요~",
                         "user": "김정수"
                         }]
             })

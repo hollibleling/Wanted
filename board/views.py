@@ -36,7 +36,7 @@ class AllTextView(View):
         if not Board.objects.all():
             return JsonResponse({'message' : 'TEXT DOES NOT EXISTS'}, status=404)
             
-        all_texts = Board.objects.select_related("user").all()
+        all_texts = Board.objects.select_related("user").order_by("-created_at").all()
         offset = request.GET.get('page', 1)
         count = 15
 
@@ -81,7 +81,7 @@ class DetailTextView(View):
             detail_text.text = text
             detail_text.save()
 
-            return JsonResponse({"message" : "UPDATE SUCCESS"}, status = 200)
+            return JsonResponse({"message" : "UPDATE SUCCESS"}, status = 201)
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
     
@@ -98,10 +98,19 @@ class TextSummaryView(View):
         if not Board.objects.filter(user_id = user_id).exists():
             return JsonResponse({'MESSAGE' : 'NOT FOUND'}, status = 404)
             
-        texts = Board.objects.filter(user_id = user_id)
+        all_texts = Board.objects.order_by("-created_at").filter(user_id = user_id)
+        offset = request.GET.get('page', 1)
+        count = 15
 
-        return JsonResponse({'title_lists' : [
+        if int(offset) <= 0:
+            return JsonResponse({"message" : "WRONG REQUEST"}, status=404)
+        
+        start = (int(offset)-1) * count
+
+        texts = [
             {
                 'title' : text.title, 
                 'user'  : text.user.name, 
-            } for text in texts]}, status = 200)
+            } for text in all_texts[start:start+count]]
+
+        return JsonResponse({'title_lists' : texts}, status = 200)
