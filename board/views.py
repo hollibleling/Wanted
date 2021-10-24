@@ -34,7 +34,7 @@ class CreateTextView(View):
 class AllTextView(View):
     def get(self, request):
         if not Board.objects.all():
-            return JsonResponse({'MESSAGE' : 'TEXT DOES NOT EXISTS'})
+            return JsonResponse({'MESSAGE' : 'TEXT DOES NOT EXISTS'}, status=404)
             
         texts = Board.objects.select_related("user").all()
 

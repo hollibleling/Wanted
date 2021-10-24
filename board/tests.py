@@ -154,6 +154,14 @@ class AlllTextViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+class AllTextViewEmptyTest(TestCase):
+    def test_all_text_view_not_exist_error(self):
+        client   = Client()
+        response = client.get('/board/text')
+
+        self.assertEqual(response.json(), {'MESSAGE' : 'TEXT DOES NOT EXISTS'})
+        self.assertEqual(response.status_code, 404)
+
 class DetailTextViewTest(TestCase):
     def setUp(self):
         User.objects.create(
